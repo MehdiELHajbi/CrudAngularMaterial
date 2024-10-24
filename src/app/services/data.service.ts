@@ -2,41 +2,31 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Product } from '../models/product.model';
 import { Order } from '../models/order.model';
+import mockData from '../data/mock-data.json';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  private products: Product[] = [
-    { id: 1, name: 'Laptop Pro', price: 1299, description: 'High-performance laptop' },
-    { id: 2, name: 'Smartphone X', price: 899, description: 'Latest smartphone model' },
-    { id: 3, name: 'Wireless Headphones', price: 199, description: 'Noise-canceling headphones' },
-    { id: 4, name: 'Smart Watch', price: 299, description: 'Fitness tracking watch' },
-    { id: 5, name: 'Tablet Air', price: 499, description: 'Lightweight tablet' },
-    { id: 6, name: 'Desktop PC', price: 999, description: 'Powerful desktop computer' },
-    { id: 7, name: 'Gaming Console', price: 399, description: 'Next-gen gaming system' },
-    { id: 8, name: 'Wireless Mouse', price: 49, description: 'Ergonomic mouse' },
-    { id: 9, name: 'Keyboard Pro', price: 129, description: 'Mechanical keyboard' },
-    { id: 10, name: 'Monitor 4K', price: 599, description: 'Ultra HD display' },
-    { id: 11, name: 'Printer', price: 249, description: 'Color laser printer' },
-    { id: 12, name: 'External SSD', price: 159, description: '1TB portable drive' }
-  ];
-
-  private orders: Order[] = [
-    { id: 1, productId: 1, quantity: 2, customerName: 'John Doe', orderDate: new Date('2024-01-15'), total: 2598 },
-    { id: 2, productId: 3, quantity: 1, customerName: 'Jane Smith', orderDate: new Date('2024-01-16'), total: 199 },
-    { id: 3, productId: 2, quantity: 3, customerName: 'Mike Johnson', orderDate: new Date('2024-01-17'), total: 2697 },
-    { id: 4, productId: 5, quantity: 1, customerName: 'Sarah Wilson', orderDate: new Date('2024-01-18'), total: 499 },
-    { id: 5, productId: 4, quantity: 2, customerName: 'Tom Brown', orderDate: new Date('2024-01-19'), total: 598 },
-    { id: 6, productId: 7, quantity: 1, customerName: 'Emily Davis', orderDate: new Date('2024-01-20'), total: 399 },
-    { id: 7, productId: 6, quantity: 1, customerName: 'David Miller', orderDate: new Date('2024-01-21'), total: 999 },
-    { id: 8, productId: 8, quantity: 3, customerName: 'Lisa Anderson', orderDate: new Date('2024-01-22'), total: 147 },
-    { id: 9, productId: 10, quantity: 2, customerName: 'Chris Taylor', orderDate: new Date('2024-01-23'), total: 1198 },
-    { id: 10, productId: 9, quantity: 1, customerName: 'Amy White', orderDate: new Date('2024-01-24'), total: 129 }
-  ];
+  private products: Product[] = this.mapProducts(mockData.products);
+  private orders: Order[] = this.mapOrders(mockData.orders);
 
   private productsSubject = new BehaviorSubject<Product[]>(this.products);
   private ordersSubject = new BehaviorSubject<Order[]>(this.orders);
+
+  private mapProducts(data: any[]): Product[] {
+    return data.map(item => ({
+      ...item,
+      lastUpdated: new Date(item.lastUpdated)
+    }));
+  }
+
+  private mapOrders(data: any[]): Order[] {
+    return data.map(item => ({
+      ...item,
+      orderDate: new Date(item.orderDate)
+    }));
+  }
 
   getProducts(): Observable<Product[]> {
     return this.productsSubject.asObservable();
@@ -44,6 +34,14 @@ export class DataService {
 
   getOrders(): Observable<Order[]> {
     return this.ordersSubject.asObservable();
+  }
+
+  getProductById(id: number): Product | undefined {
+    return this.products.find(p => p.id === id);
+  }
+
+  getOrderById(id: number): Order | undefined {
+    return this.orders.find(o => o.id === id);
   }
 
   addProduct(product: Product): void {

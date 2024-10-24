@@ -5,4 +5,9 @@ export interface Order {
   customerName: string;
   orderDate: Date;
   total: number;
+  status: string;
+  paymentMethod: string;
+  shippingAddress: string;
+  trackingNumber: string;
+  notes: string;
 }

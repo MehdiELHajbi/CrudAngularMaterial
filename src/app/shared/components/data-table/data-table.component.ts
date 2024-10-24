@@ -1,6 +1,14 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+export interface Column {
+  field: string;
+  header: string;
+  format?: (value: any) => string;
+  showInTable?: boolean;
+  showInDetails?: boolean;
+}
+
 @Component({
   selector: 'app-data-table',
   standalone: true,
@@ -9,18 +17,33 @@ import { CommonModule } from '@angular/common';
     <table>
       <thead>
         <tr>
-          <th *ngFor="let column of columns">{{column.header}}</th>
-          <th *ngIf="showActions">Actions</th>
+          <th *ngFor="let column of displayColumns">{{column.header}}</th>
+          <th class="actions-header">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of paginatedData">
-          <td *ngFor="let column of columns">
+          <td *ngFor="let column of displayColumns">
             {{getValue(item, column)}}
           </td>
-          <td *ngIf="showActions" class="actions">
-            <button (click)="onEdit.emit(item)" class="btn-secondary">Edit</button>
-            <button (click)="onDelete.emit(item)" class="btn-danger">Delete</button>
+          <td class="actions">
+            <div class="action-buttons">
+              <button (click)="onView.emit({item: item, detailColumns: detailColumns})" 
+                      class="icon-button" 
+                      title="View Details">
+                👁️
+              </button>
+              <button (click)="onEdit.emit(item)" 
+                      class="icon-button" 
+                      title="Edit">
+                ✏️
+              </button>
+              <button (click)="onDelete.emit(item)" 
+                      class="icon-button delete" 
+                      title="Delete">
+                🗑️
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -59,9 +82,38 @@ import { CommonModule } from '@angular/common';
     </div>
   `,
   styles: [`
+    .actions-header {
+      width: 120px;
+      text-align: center;
+    }
     .actions {
+      padding: 8px !important;
+      text-align: center;
+    }
+    .action-buttons {
       display: flex;
-      gap: 0.5rem;
+      justify-content: center;
+      gap: 8px;
+    }
+    .icon-button {
+      background: none;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+    }
+    .icon-button:hover {
+      background-color: #f0f0f0;
+    }
+    .icon-button.delete:hover {
+      background-color: #fee2e2;
     }
     .pagination {
       margin-top: 1rem;
@@ -93,14 +145,22 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class DataTableComponent {
-  @Input() columns: Array<{field: string; header: string; format?: (value: any) => string}> = [];
+  @Input() columns: Column[] = [];
   @Input() data: any[] = [];
-  @Input() showActions = true;
   @Output() onEdit = new EventEmitter<any>();
   @Output() onDelete = new EventEmitter<any>();
+  @Output() onView = new EventEmitter<{item: any, detailColumns: Column[]}>();
 
   pageSize = 5;
   currentPage = 1;
+
+  get displayColumns(): Column[] {
+    return this.columns.filter(col => col.showInTable !== false);
+  }
+
+  get detailColumns(): Column[] {
+    return this.columns.filter(col => col.showInDetails !== false);
+  }
 
   get totalPages(): number {
     return Math.ceil(this.data.length / this.pageSize);
@@ -126,7 +186,7 @@ export class DataTableComponent {
     return this.data.slice(this.startIndex, this.endIndex);
   }
 
-  getValue(item: any, column: any): string {
+  getValue(item: any, column: Column): string {
     const value = item[column.field];
     return column.format ? column.format(value) : value;
   }

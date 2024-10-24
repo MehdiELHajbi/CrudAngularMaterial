@@ -14,6 +14,9 @@
     "@angular/forms": "^18.1.0",
     "@angular/platform-browser": "^18.1.0",
     "@angular/router": "^18.1.0",
+    "@ngrx/effects": "^18.0.0",
+    "@ngrx/store": "^18.0.0",
+    "@ngrx/store-devtools": "^18.0.0",
     "rxjs": "^7.8.1",
     "tslib": "^2.5.0",
     "zone.js": "~0.14.0"

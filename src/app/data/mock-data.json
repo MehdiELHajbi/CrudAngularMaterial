@@ -1,0 +1,131 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Laptop Pro",
+      "price": 1299,
+      "description": "High-performance laptop",
+      "sku": "LAP001",
+      "category": "Electronics",
+      "stock": 45,
+      "rating": 4.5,
+      "manufacturer": "TechCorp",
+      "lastUpdated": "2024-01-15"
+    },
+    {
+      "id": 2,
+      "name": "Smartphone X",
+      "price": 899,
+      "description": "Latest smartphone model",
+      "sku": "PHN002",
+      "category": "Mobile",
+      "stock": 30,
+      "rating": 4.8,
+      "manufacturer": "PhoneTech",
+      "lastUpdated": "2024-01-16"
+    },
+    {
+      "id": 3,
+      "name": "Wireless Headphones",
+      "price": 199,
+      "description": "Noise-canceling headphones",
+      "sku": "AUD003",
+      "category": "Audio",
+      "stock": 60,
+      "rating": 4.3,
+      "manufacturer": "SoundCo",
+      "lastUpdated": "2024-01-17"
+    },
+    {
+      "id": 4,
+      "name": "Smart Watch",
+      "price": 299,
+      "description": "Fitness tracking watch",
+      "sku": "WTC004",
+      "category": "Wearables",
+      "stock": 25,
+      "rating": 4.6,
+      "manufacturer": "WearTech",
+      "lastUpdated": "2024-01-18"
+    },
+    {
+      "id": 5,
+      "name": "Tablet Air",
+      "price": 499,
+      "description": "Lightweight tablet",
+      "sku": "TAB005",
+      "category": "Electronics",
+      "stock": 35,
+      "rating": 4.4,
+      "manufacturer": "TabletCo",
+      "lastUpdated": "2024-01-19"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "productId": 1,
+      "quantity": 2,
+      "customerName": "John Doe",
+      "orderDate": "2024-01-15",
+      "total": 2598,
+      "status": "Delivered",
+      "paymentMethod": "Credit Card",
+      "shippingAddress": "123 Main St, NY",
+      "trackingNumber": "TRK001",
+      "notes": "Priority Delivery"
+    },
+    {
+      "id": 2,
+      "productId": 3,
+      "quantity": 1,
+      "customerName": "Jane Smith",
+      "orderDate": "2024-01-16",
+      "total": 199,
+      "status": "Processing",
+      "paymentMethod": "PayPal",
+      "shippingAddress": "456 Oak Ave, CA",
+      "trackingNumber": "TRK002",
+      "notes": "Gift Wrap"
+    },
+    {
+      "id": 3,
+      "productId": 2,
+      "quantity": 3,
+      "customerName": "Mike Johnson",
+      "orderDate": "2024-01-17",
+      "total": 2697,
+      "status": "Shipped",
+      "paymentMethod": "Debit Card",
+      "shippingAddress": "789 Pine Rd, TX",
+      "trackingNumber": "TRK003",
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "productId": 5,
+      "quantity": 1,
+      "customerName": "Sarah Wilson",
+      "orderDate": "2024-01-18",
+      "total": 499,
+      "status": "Pending",
+      "paymentMethod": "Bank Transfer",
+      "shippingAddress": "321 Elm St, FL",
+      "trackingNumber": "",
+      "notes": "Contact before delivery"
+    },
+    {
+      "id": 5,
+      "productId": 4,
+      "quantity": 2,
+      "customerName": "Tom Brown",
+      "orderDate": "2024-01-19",
+      "total": 598,
+      "status": "Delivered",
+      "paymentMethod": "Credit Card",
+      "shippingAddress": "654 Maple Dr, WA",
+      "trackingNumber": "TRK004",
+      "notes": ""
+    }
+  ]
+}

@@ -3,4 +3,10 @@ export interface Product {
   name: string;
   price: number;
   description: string;
+  sku: string;
+  category: string;
+  stock: number;
+  rating: number;
+  manufacturer: string;
+  lastUpdated: Date;
 }
