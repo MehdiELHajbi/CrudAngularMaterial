@@ -1,7 +1,5 @@
-import { ProductState } from './product/product.state';
-import { OrderState } from './order/order.state';
+import { ProductState } from './product/product.model';
 
 export interface AppState {
   products: ProductState;
-  orders: OrderState;
 }

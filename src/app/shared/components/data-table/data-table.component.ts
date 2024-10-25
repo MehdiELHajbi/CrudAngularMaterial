@@ -1,197 +1,130 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-export interface Column {
-  field: string;
-  header: string;
-  format?: (value: any) => string;
-  showInTable?: boolean;
-  showInDetails?: boolean;
-}
+import { MatTableModule, MatTable } from '@angular/material/table';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule
+  ],
   template: `
-    <table>
-      <thead>
-        <tr>
-          <th *ngFor="let column of displayColumns">{{column.header}}</th>
-          <th class="actions-header">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of paginatedData">
-          <td *ngFor="let column of displayColumns">
-            {{getValue(item, column)}}
-          </td>
-          <td class="actions">
-            <div class="action-buttons">
-              <button (click)="onView.emit({item: item, detailColumns: detailColumns})" 
-                      class="icon-button" 
-                      title="View Details">
-                👁️
-              </button>
-              <button (click)="onEdit.emit(item)" 
-                      class="icon-button" 
-                      title="Edit">
-                ✏️
-              </button>
-              <button (click)="onDelete.emit(item)" 
-                      class="icon-button delete" 
-                      title="Delete">
-                🗑️
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Type to search..." #input>
+    </mat-form-field>
 
-    <div class="pagination">
-      <div class="pagination-info">
-        Showing {{startIndex + 1}} to {{endIndex}} of {{data.length}} entries
-      </div>
-      <div class="pagination-controls">
-        <button 
-          [disabled]="currentPage === 1"
-          (click)="changePage(currentPage - 1)"
-          class="btn-secondary"
-        >
-          Previous
-        </button>
-        <span class="page-numbers">
-          <button 
-            *ngFor="let page of pageNumbers"
-            (click)="changePage(page)"
-            class="btn-secondary"
-            [class.active]="currentPage === page"
-          >
-            {{page}}
-          </button>
-        </span>
-        <button 
-          [disabled]="currentPage === totalPages"
-          (click)="changePage(currentPage + 1)"
-          class="btn-secondary"
-        >
-          Next
-        </button>
-      </div>
+    <div class="mat-elevation-z2 table-container">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.label }}</th>
+          <td mat-cell *matCellDef="let row">{{ row[column.key] }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let row">
+            <button mat-icon-button color="primary" (click)="onView.emit(row)" matTooltip="View Details">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="onEdit.emit(row)" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="onDelete.emit(row)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            No data matching the filter "{{input.value}}"
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"
+                     aria-label="Select page">
+      </mat-paginator>
     </div>
   `,
   styles: [`
-    .actions-header {
-      width: 120px;
+    .search-field {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .table-container {
+      position: relative;
+      min-height: 200px;
+      max-height: 600px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    .mat-mdc-row:hover {
+      background-color: #f5f5f5;
+    }
+
+    .mat-column-actions {
+      width: 150px;
       text-align: center;
-    }
-    .actions {
-      padding: 8px !important;
-      text-align: center;
-    }
-    .action-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
-    .icon-button {
-      background: none;
-      border: none;
-      padding: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-    }
-    .icon-button:hover {
-      background-color: #f0f0f0;
-    }
-    .icon-button.delete:hover {
-      background-color: #fee2e2;
-    }
-    .pagination {
-      margin-top: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .pagination-info {
-      color: #666;
-    }
-    .pagination-controls {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    .page-numbers {
-      display: flex;
-      gap: 0.25rem;
-    }
-    .page-numbers button {
-      min-width: 32px;
-      height: 32px;
-      padding: 0;
-    }
-    .page-numbers button.active {
-      background-color: #405189;
-      color: white;
     }
   `]
 })
 export class DataTableComponent {
-  @Input() columns: Column[] = [];
-  @Input() data: any[] = [];
+  @Input() set data(value: any[]) {
+    this.dataSource.data = value;
+  }
+  @Input() columns: { key: string; label: string }[] = [];
+  @Output() onView = new EventEmitter<any>();
   @Output() onEdit = new EventEmitter<any>();
   @Output() onDelete = new EventEmitter<any>();
-  @Output() onView = new EventEmitter<{item: any, detailColumns: Column[]}>();
 
-  pageSize = 5;
-  currentPage = 1;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<any>;
 
-  get displayColumns(): Column[] {
-    return this.columns.filter(col => col.showInTable !== false);
+  dataSource = new MatTableDataSource<any>();
+  displayedColumns: string[] = [];
+
+  ngOnInit() {
+    this.displayedColumns = [...this.columns.map(col => col.key), 'actions'];
   }
 
-  get detailColumns(): Column[] {
-    return this.columns.filter(col => col.showInDetails !== false);
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
-  get totalPages(): number {
-    return Math.ceil(this.data.length / this.pageSize);
-  }
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
 
-  get pageNumbers(): number[] {
-    const pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      pages.push(i);
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
     }
-    return pages;
-  }
-
-  get startIndex(): number {
-    return (this.currentPage - 1) * this.pageSize;
-  }
-
-  get endIndex(): number {
-    return Math.min(this.startIndex + this.pageSize, this.data.length);
-  }
-
-  get paginatedData(): any[] {
-    return this.data.slice(this.startIndex, this.endIndex);
-  }
-
-  getValue(item: any, column: Column): string {
-    const value = item[column.field];
-    return column.format ? column.format(value) : value;
-  }
-
-  changePage(page: number): void {
-    this.currentPage = page;
   }
 }

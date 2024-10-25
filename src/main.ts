@@ -1,23 +1,39 @@
+import { Component } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { Routes, provideRouter } from '@angular/router';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
-import { App } from './app/app.component';
-import { routes } from './app/app.routes';
-import { productReducer } from './app/store/product/product.reducer';
-import { orderReducer } from './app/store/order/order.reducer';
+import { NavigationComponent } from './app/layout/navigation/navigation.component';
+import { ProductsComponent } from './app/products/products.component';
+import { OrdersComponent } from './app/orders/orders.component';
+import { DashboardComponent } from './app/dashboard/dashboard.component';
+import { reducers } from './app/store';
 import { ProductEffects } from './app/store/product/product.effects';
-import { OrderEffects } from './app/store/order/order.effects';
+
+const routes: Routes = [
+  { path: 'dashboard', component: DashboardComponent },
+  { path: 'products', component: ProductsComponent },
+  { path: 'orders', component: OrdersComponent },
+  { path: 'settings', component: DashboardComponent },
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
+];
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [NavigationComponent],
+  template: '<app-navigation></app-navigation>'
+})
+export class App {}
 
 bootstrapApplication(App, {
   providers: [
     provideRouter(routes),
-    provideStore({
-      products: productReducer,
-      orders: orderReducer
-    }),
-    provideEffects([ProductEffects, OrderEffects]),
+    provideAnimations(),
+    provideStore(reducers),
+    provideEffects([ProductEffects]),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: false,
@@ -26,4 +42,4 @@ bootstrapApplication(App, {
       traceLimit: 75
     })
   ]
-}).catch(err => console.error(err));
+});

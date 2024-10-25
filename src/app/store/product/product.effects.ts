@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, mergeMap, catchError } from 'rxjs/operators';
-import { DataService } from '../../services/data.service';
+import { ProductService } from '../../services/product.service';
 import * as ProductActions from './product.actions';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class ProductEffects {
     this.actions$.pipe(
       ofType(ProductActions.loadProducts),
       mergeMap(() =>
-        this.dataService.getProducts().pipe(
+        this.productService.getProducts().pipe(
           map(products => ProductActions.loadProductsSuccess({ products })),
           catchError(error => of(ProductActions.loadProductsFailure({ error: error.message })))
         )
@@ -22,35 +22,41 @@ export class ProductEffects {
   addProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.addProduct),
-      mergeMap(action => {
-        this.dataService.addProduct(action.product);
-        return of(ProductActions.addProductSuccess({ product: action.product }));
-      })
+      mergeMap(action =>
+        this.productService.addProduct(action.product).pipe(
+          map(product => ProductActions.addProductSuccess({ product })),
+          catchError(error => of(ProductActions.addProductFailure({ error: error.message })))
+        )
+      )
     )
   );
 
   updateProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.updateProduct),
-      mergeMap(action => {
-        this.dataService.updateProduct(action.product);
-        return of(ProductActions.updateProductSuccess({ product: action.product }));
-      })
+      mergeMap(action =>
+        this.productService.updateProduct(action.product).pipe(
+          map(product => ProductActions.updateProductSuccess({ product })),
+          catchError(error => of(ProductActions.updateProductFailure({ error: error.message })))
+        )
+      )
     )
   );
 
   deleteProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.deleteProduct),
-      mergeMap(action => {
-        this.dataService.deleteProduct(action.id);
-        return of(ProductActions.deleteProductSuccess({ id: action.id }));
-      })
+      mergeMap(action =>
+        this.productService.deleteProduct(action.id).pipe(
+          map(() => ProductActions.deleteProductSuccess({ id: action.id })),
+          catchError(error => of(ProductActions.deleteProductFailure({ error: error.message })))
+        )
+      )
     )
   );
 
   constructor(
     private actions$: Actions,
-    private dataService: DataService
+    private productService: ProductService
   ) {}
 }
